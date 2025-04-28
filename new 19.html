@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Tiler (Configurable Pre-Tile, Offset & Scale)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Hidden canvases for processing */
+        #imageCanvas, #preTileCanvas {
+           display: none; /* Keep canvases hidden */
+        }
+        /* Style for the image preview container */
+        #imagePreviewContainer {
+            min-height: 200px;
+            max-width: 100%;
+            overflow: hidden;
+            position: relative;
+            background-color: #f9fafb;
+        }
+        #imagePreview {
+            max-width: 100%;
+            max-height: 60vh;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #e5e7eb;
+        }
+        #previewText {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #9ca3af;
+        }
+        /* Style file input button */
+        input[type="file"]::file-selector-button {
+            @apply font-semibold bg-blue-500 text-white hover:bg-blue-700 py-2 px-4 rounded-md cursor-pointer transition duration-150 ease-in-out mr-4;
+        }
+        /* Style range sliders */
+        input[type="range"] {
+            @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            @apply appearance-none w-5 h-5 bg-blue-500 rounded-full cursor-pointer hover:bg-blue-600;
+        }
+        input[type="range"]::-moz-range-thumb {
+             @apply w-5 h-5 bg-blue-500 rounded-full cursor-pointer hover:bg-blue-600 border-0;
+        }
+        /* Smaller font for slider labels */
+        .slider-label {
+             @apply block text-xs font-medium text-gray-600 mb-1;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-4xl"> <h1 class="text-2xl md:text-3xl font-semibold mb-6 text-center text-gray-700">Image Tiler (Configurable Pre-Tile, Offset & Scale)</h1>
+
+        <div class="mb-6">
+            <label for="imageLoader" class="block text-sm font-medium text-gray-600 mb-2">1. Choose an image:</label>
+            <input type="file" id="imageLoader" name="imageLoader" accept="image/png, image/jpeg, image/gif" class="block w-full text-sm text-gray-500 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 rounded-md border border-gray-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <div class="mb-6">
+             <label class="block text-sm font-medium text-gray-600 mb-2">Preview:</label>
+            <div id="imagePreviewContainer" class="border border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+                <img id="imagePreview" src="#" alt="Processed Image Preview" class="hidden"/>
+                <span id="previewText" class="text-gray-400">Preview will appear here after loading image</span>
+            </div>
+        </div>
+
+
+        <div class="mb-6 border-t pt-6">
+             <label class="block text-sm font-medium text-gray-600 mb-3">2. Adjust Tiling & Effects:</label>
+             <div class="grid grid-cols-1 md:grid-cols-5 gap-x-4 gap-y-3 items-start mb-4">
+                <div>
+                    <label for="tilesX" class="slider-label">Tiles X (<span id="tilesXValue">3</span>):</label>
+                    <input type="range" id="tilesX" name="tilesX" min="1" max="20" value="3" class="w-full">
+                </div>
+                <div>
+                    <label for="tilesY" class="slider-label">Tiles Y (<span id="tilesYValue">3</span>):</label>
+                    <input type="range" id="tilesY" name="tilesY" min="1" max="20" value="3" class="w-full">
+                </div>
+                <div>
+                    <label for="skewFactor" class="slider-label">Skew (<span id="skewValue">0.5</span>):</label>
+                    <input type="range" id="skewFactor" name="skewFactor" min="0" max="1.5" value="0.5" step="0.1" class="w-full">
+                </div>
+                 <div>
+                    <label for="staggerOffset" class="slider-label">Stagger (<span id="staggerValue">0.5</span>):</label>
+                    <input type="range" id="staggerOffset" name="staggerOffset" min="0" max="1" value="0.5" step="0.05" class="w-full">
+                </div>
+                 <div>
+                    <label for="tileScale" class="slider-label">Overlap (<span id="scaleValue">1.1</span>):</label>
+                    <input type="range" id="tileScale" name="tileScale" min="1.0" max="2.0" value="1.1" step="0.05" class="w-full">
+                </div>
+            </div>
+             <div class="grid grid-cols-1 md:grid-cols-5 gap-x-4 gap-y-3 items-start mt-3 pt-3 border-t border-gray-200">
+                 <div class="md:col-span-2"> <label for="preTileX" class="slider-label">Pre-Tile Grid X (<span id="preTileXValue">3</span>):</label>
+                     <input type="range" id="preTileX" name="preTileX" min="1" max="10" value="3" step="1" class="w-full">
+                 </div>
+                 <div class="md:col-span-2"> <label for="preTileY" class="slider-label">Pre-Tile Grid Y (<span id="preTileYValue">3</span>):</label>
+                     <input type="range" id="preTileY" name="preTileY" min="1" max="10" value="3" step="1" class="w-full">
+                 </div>
+                 <div class="md:col-span-1"></div> </div>
+             <p class="text-xs text-gray-500 mt-2 text-center">Adjust sliders to see the effect. Pre-Tile Grid controls the pattern scale within each tile. Increase Overlap to fix gaps.</p>
+        </div>
+
+
+        <canvas id="preTileCanvas"></canvas> <canvas id="imageCanvas"></canvas>   <div class="text-center mt-8 border-t pt-6">
+             <label class="block text-sm font-medium text-gray-600 mb-2">3. Save Final Image:</label>
+            <button id="saveButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-lg" disabled>
+                Save Image
+            </button>
+        </div>
+
+        <div id="messageBox" class="mt-4 text-center font-medium hidden h-6"></div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const imageLoader = document.getElementById('imageLoader');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const previewText = document.getElementById('previewText');
+        const preTileCanvas = document.getElementById('preTileCanvas');
+        const preTileCtx = preTileCanvas.getContext('2d');
+        const canvas = document.getElementById('imageCanvas');
+        const ctx = canvas.getContext('2d');
+        const saveButton = document.getElementById('saveButton');
+        const messageBox = document.getElementById('messageBox');
+        // Sliders
+        const tilesXSlider = document.getElementById('tilesX');
+        const tilesYSlider = document.getElementById('tilesY');
+        const skewSlider = document.getElementById('skewFactor');
+        const staggerSlider = document.getElementById('staggerOffset');
+        const scaleSlider = document.getElementById('tileScale');
+        const preTileXSlider = document.getElementById('preTileX'); // New
+        const preTileYSlider = document.getElementById('preTileY'); // New
+        // Slider Value Displays
+        const tilesXValueSpan = document.getElementById('tilesXValue');
+        const tilesYValueSpan = document.getElementById('tilesYValue');
+        const skewValueSpan = document.getElementById('skewValue');
+        const staggerValueSpan = document.getElementById('staggerValue');
+        const scaleValueSpan = document.getElementById('scaleValue');
+        const preTileXValueSpan = document.getElementById('preTileXValue'); // New
+        const preTileYValueSpan = document.getElementById('preTileYValue'); // New
+
+        // State variables
+        let currentImage = null;
+        let originalFileName = 'downloaded-image.png';
+        let isProcessing = false;
+        let debounceTimer;
+
+        // --- Functions ---
+
+        function showMessage(message, isError = false) {
+            messageBox.textContent = message;
+            messageBox.className = `mt-4 text-center font-medium h-6 ${isError ? 'text-red-600' : 'text-green-600'}`;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                 if (messageBox.textContent === message) {
+                    messageBox.classList.add('hidden');
+                    messageBox.textContent = '';
+                 }
+            }, 5000);
+        }
+
+        // Draw the final image using pre-tiled source, apply skew/stagger/scale
+        function processAndPreviewImage() {
+            if (!currentImage || isProcessing) return;
+            isProcessing = true;
+
+            // Read all slider values
+            const numTilesXFinal = parseInt(tilesXSlider.value, 10);
+            const numTilesYFinal = parseInt(tilesYSlider.value, 10);
+            const skewMagnitude = parseFloat(skewSlider.value);
+            const staggerFactor = parseFloat(staggerSlider.value);
+            const scaleFactor = parseFloat(scaleSlider.value);
+            const preTileGridX = parseInt(preTileXSlider.value, 10); // Read pre-tile X
+            const preTileGridY = parseInt(preTileYSlider.value, 10); // Read pre-tile Y
+
+            // --- Step 1: Create Pre-Tiled Image on preTileCanvas ---
+            // Use preTileGridX/Y from sliders
+            preTileCanvas.width = currentImage.naturalWidth;
+            preTileCanvas.height = currentImage.naturalHeight;
+            preTileCtx.clearRect(0, 0, preTileCanvas.width, preTileCanvas.height);
+            // Prevent division by zero if sliders somehow go to 0
+            const safePreTileGridX = Math.max(1, preTileGridX);
+            const safePreTileGridY = Math.max(1, preTileGridY);
+            const preTileW = preTileCanvas.width / safePreTileGridX;
+            const preTileH = preTileCanvas.height / safePreTileGridY;
+            for (let py = 0; py < safePreTileGridY; py++) {
+                for (let px = 0; px < safePreTileGridX; px++) {
+                    preTileCtx.drawImage(currentImage, px * preTileW, py * preTileH, preTileW, preTileH);
+                }
+            }
+            // console.log(`PreTileCanvas updated.`);
+
+            // --- Step 2: Draw Final Image using preTileCanvas as Source ---
+            canvas.width = currentImage.naturalWidth;
+            canvas.height = currentImage.naturalHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const finalTileWidth = canvas.width / numTilesXFinal;
+            const finalTileHeight = canvas.height / numTilesYFinal;
+
+            const startY = -2;
+            const endY = numTilesYFinal + 2;
+            const startX = -3;
+            const endX = Math.ceil(canvas.width / finalTileWidth) + 3;
+
+            for (let y = startY; y < endY; y++) {
+                let xOffset = (y % 2 !== 0) ? (finalTileWidth * staggerFactor) : 0;
+
+                for (let x = startX; x < endX; x++) {
+                    const destX = (x * finalTileWidth) - xOffset;
+                    const destY = y * finalTileHeight;
+                    const currentSkew = (Math.abs(x % 2) === 0) ? skewMagnitude : -skewMagnitude;
+
+                    ctx.save();
+                    ctx.translate(destX, destY);
+                    ctx.transform(1, 0, currentSkew, 1, 0, 0);
+
+                    const scaledWidth = finalTileWidth * scaleFactor;
+                    const scaledHeight = finalTileHeight * scaleFactor;
+                    const drawOffsetX = (finalTileWidth - scaledWidth) / 2;
+                    const drawOffsetY = (finalTileHeight - scaledHeight) / 2;
+
+                    ctx.drawImage(preTileCanvas, drawOffsetX, drawOffsetY, scaledWidth, scaledHeight);
+                    ctx.restore();
+                }
+            }
+            // --- End Final Drawing ---
+
+            // --- Update Preview ---
+            try {
+                const dataURL = canvas.toDataURL('image/png');
+                imagePreview.src = dataURL;
+                imagePreview.classList.remove('hidden');
+                previewText.classList.add('hidden');
+            } catch (error) {
+                 console.error("Error updating preview:", error);
+                 showMessage("Could not update preview.", true);
+                 imagePreview.classList.add('hidden');
+                 previewText.classList.remove('hidden');
+                 previewText.textContent = "Preview Error";
+            }
+
+            // console.log(`Final Canvas/Preview updated.`);
+            isProcessing = false;
+        }
+
+        // Debounced version of processAndPreviewImage for sliders
+        function handleSliderChange() {
+            // Update all slider value displays immediately
+            tilesXValueSpan.textContent = tilesXSlider.value;
+            tilesYValueSpan.textContent = tilesYSlider.value;
+            skewValueSpan.textContent = parseFloat(skewSlider.value).toFixed(1);
+            staggerValueSpan.textContent = parseFloat(staggerSlider.value).toFixed(2);
+            scaleValueSpan.textContent = parseFloat(scaleSlider.value).toFixed(2);
+            preTileXValueSpan.textContent = preTileXSlider.value; // New
+            preTileYValueSpan.textContent = preTileYSlider.value; // New
+
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                if (currentImage) {
+                    processAndPreviewImage();
+                }
+            }, 150); // Debounce delay
+        }
+
+
+        // Handle file input changes
+        function handleImageLoad(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                resetState();
+                showMessage('No file selected.', true);
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                resetState();
+                showMessage('Please select a valid image file (PNG, JPG, GIF).', true);
+                return;
+            }
+
+            originalFileName = file.name;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    currentImage = img;
+                    processAndPreviewImage(); // Initial processing and preview
+                    // Enable all sliders
+                    saveButton.disabled = false;
+                    tilesXSlider.disabled = false;
+                    tilesYSlider.disabled = false;
+                    skewSlider.disabled = false;
+                    staggerSlider.disabled = false;
+                    scaleSlider.disabled = false;
+                    preTileXSlider.disabled = false; // Enable new slider
+                    preTileYSlider.disabled = false; // Enable new slider
+                    showMessage('Image loaded. Adjust sliders to modify preview.', false);
+                };
+                img.onerror = () => {
+                    resetState();
+                    showMessage('Error loading image data.', true);
+                };
+                img.src = e.target.result;
+            };
+            reader.onerror = () => {
+                resetState();
+                showMessage('Error reading file.', true);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Reset UI and state
+        function resetState() {
+            imageLoader.value = '';
+            imagePreview.classList.add('hidden');
+            imagePreview.src = '#';
+            previewText.classList.remove('hidden');
+            previewText.textContent = "Preview will appear here after loading image";
+            saveButton.disabled = true;
+            // Disable all sliders
+            tilesXSlider.disabled = true;
+            tilesYSlider.disabled = true;
+            skewSlider.disabled = true;
+            staggerSlider.disabled = true;
+            scaleSlider.disabled = true;
+            preTileXSlider.disabled = true; // New
+            preTileYSlider.disabled = true; // New
+            // Reset slider values and displays to defaults
+            tilesXSlider.value = 3;
+            tilesYSlider.value = 3;
+            skewSlider.value = 0.5;
+            staggerSlider.value = 0.5;
+            scaleSlider.value = 1.1;
+            preTileXSlider.value = 3; // New default
+            preTileYSlider.value = 3; // New default
+            tilesXValueSpan.textContent = '3';
+            tilesYValueSpan.textContent = '3';
+            skewValueSpan.textContent = '0.5';
+            staggerValueSpan.textContent = '0.5';
+            scaleValueSpan.textContent = '1.1';
+            preTileXValueSpan.textContent = '3'; // New
+            preTileYValueSpan.textContent = '3'; // New
+            // Clear canvases
+             if (canvas.width > 0 && canvas.height > 0) {
+               ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+             if (preTileCanvas.width > 0 && preTileCanvas.height > 0) {
+               preTileCtx.clearRect(0, 0, preTileCanvas.width, preTileCanvas.height);
+            }
+            currentImage = null;
+        }
+
+        // Handle saving the image
+        function saveImage() {
+            if (!currentImage || isProcessing) {
+                showMessage('Cannot save while processing or no image loaded.', true);
+                return;
+            }
+            try {
+                const dataURL = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = dataURL;
+                // Include all params in filename
+                const tileStr = `${tilesXSlider.value}x${tilesYSlider.value}`;
+                const preTileStr = `p${preTileXSlider.value}x${preTileYSlider.value}`;
+                const skewStr = `sk${skewSlider.value}`;
+                const stagStr = `st${staggerSlider.value}`;
+                const scalStr = `sc${scaleSlider.value}`;
+                const baseName = originalFileName.substring(0, originalFileName.lastIndexOf('.')) || originalFileName;
+                const extension = originalFileName.substring(originalFileName.lastIndexOf('.')) || '.png';
+                link.download = `${baseName}_${tileStr}_${preTileStr}_${skewStr}_${stagStr}_${scalStr}${extension}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showMessage('Tiled image saved successfully!', false);
+            } catch (error) {
+                console.error('Error saving image:', error);
+                showMessage(`Could not save the image: ${error.message}`, true);
+            }
+        }
+
+        // --- Event Listeners ---
+        imageLoader.addEventListener('change', handleImageLoad);
+        saveButton.addEventListener('click', saveImage);
+        // Add listeners for all sliders
+        tilesXSlider.addEventListener('input', handleSliderChange);
+        tilesYSlider.addEventListener('input', handleSliderChange);
+        skewSlider.addEventListener('input', handleSliderChange);
+        staggerSlider.addEventListener('input', handleSliderChange);
+        scaleSlider.addEventListener('input', handleSliderChange);
+        preTileXSlider.addEventListener('input', handleSliderChange); // New
+        preTileYSlider.addEventListener('input', handleSliderChange); // New
+
+        // --- Initial State ---
+        // Disable all sliders initially
+        tilesXSlider.disabled = true;
+        tilesYSlider.disabled = true;
+        skewSlider.disabled = true;
+        staggerSlider.disabled = true;
+        scaleSlider.disabled = true;
+        preTileXSlider.disabled = true; // New
+        preTileYSlider.disabled = true; // New
+
+    </script>
+
+</body>
+</html>
