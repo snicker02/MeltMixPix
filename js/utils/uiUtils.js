@@ -1,7 +1,6 @@
-// js/utils/uiUtils.js
+// js/utils/uiUtils.js (Reverted Version - Single Effect UI)
 
-// Effects from fractalZoom that might be slow or not suitable for real-time preview *before* tiling
-const drawingPreEffects = ['fractalZoom']; // Add others if they prove slow
+const drawingPreEffects = ['fractalZoom'];
 
 /**
  * Displays a message to the user, optionally styled as an error.
@@ -10,7 +9,6 @@ const drawingPreEffects = ['fractalZoom']; // Add others if they prove slow
  * @param {HTMLElement} messageBox - The message box element.
  */
 export function showMessage(message, isError = false, messageBox) {
-   // ... (keep existing showMessage function) ...
     if (!messageBox) return;
     messageBox.textContent = message;
     messageBox.className = `mt-4 text-center font-medium h-6 ${isError ? 'text-red-600' : 'text-green-600'}`;
@@ -29,37 +27,17 @@ export function showMessage(message, isError = false, messageBox) {
  * @param {Function} handleSliderChangeFunc - The function to call after updating visibility (to potentially re-process).
  */
 export function updateTilingControlsVisibility(elements, handleSliderChangeFunc) {
-   // ... (keep existing function, renamed from updateControlsVisibility) ...
     const {
         tileShapeOptions, skewControl, staggerControl, tilesXLabel, tilesYLabel,
         scaleLabel, scaleSlider, scaleValueSpan, tilesXYHelpText
     } = elements;
-
-    // Ensure elements exist before proceeding
-    if (!tileShapeOptions || !skewControl || !staggerControl || !tilesXLabel || !tilesYLabel || !scaleLabel || !scaleSlider || !scaleValueSpan || !tilesXYHelpText) {
-        console.warn("Missing tiling control elements for visibility update.");
-        return;
-    }
-
-
+    if (!tileShapeOptions || !skewControl || !staggerControl || !tilesXLabel || !tilesYLabel || !scaleLabel || !scaleSlider || !scaleValueSpan || !tilesXYHelpText) { return; }
     const selectedShape = document.querySelector('input[name="tileShape"]:checked')?.value || 'grid';
-
-    skewControl.classList.add('hidden-control');
-    staggerControl.classList.add('hidden-control');
-    tilesXYHelpText.classList.add('hidden-control');
-
-    let defaultScale = 1.0;
-    let scaleLabelText = 'Shape Scale';
-    let xLabel = 'Tiles X';
-    let yLabel = 'Tiles Y';
-    let showHelpText = false;
-
+    skewControl.classList.add('hidden-control'); staggerControl.classList.add('hidden-control'); tilesXYHelpText.classList.add('hidden-control');
+    let defaultScale = 1.0; let scaleLabelText = 'Shape Scale'; let xLabel = 'Tiles X'; let yLabel = 'Tiles Y'; let showHelpText = false;
     switch (selectedShape) {
-        // ... cases from previous step ...
-        case 'grid':
-        case 'brick_wall': scaleLabelText = 'Tile Scale'; break;
-        case 'herringbone':
-        case 'basketweave': xLabel = 'Planks X'; yLabel = 'Planks Y'; scaleLabelText = 'Plank Scale'; break;
+        case 'grid': case 'brick_wall': scaleLabelText = 'Tile Scale'; break;
+        case 'herringbone': case 'basketweave': xLabel = 'Planks X'; yLabel = 'Planks Y'; scaleLabelText = 'Plank Scale'; break;
         case 'skewed': skewControl.classList.remove('hidden-control'); staggerControl.classList.remove('hidden-control'); scaleLabelText = 'Overlap Scale'; defaultScale = 1.05; break;
         case 'hexagon': xLabel = 'Approx Tiles X'; yLabel = 'Approx Tiles Y'; scaleLabelText = 'Hexagon Scale'; showHelpText = true; break;
         case 'semi_octagon_square': xLabel = 'Approx Tiles X'; yLabel = 'Approx Tiles Y'; scaleLabelText = 'Shape Scale'; showHelpText = true; break;
@@ -68,19 +46,11 @@ export function updateTilingControlsVisibility(elements, handleSliderChangeFunc)
         case 'square_triangle': xLabel = 'Approx Units X'; yLabel = 'Approx Units Y'; scaleLabelText = 'Shape Scale'; showHelpText = true; break;
         case 'rhombus': xLabel = 'Rhombus Count X'; yLabel = 'Rhombus Count Y'; scaleLabelText = 'Rhombus Scale'; break;
     }
-
-    tilesXLabel.textContent = xLabel;
-    tilesYLabel.textContent = yLabel;
-    scaleLabel.textContent = scaleLabelText;
-    // Only reset scale if the slider exists and value differs
-    if (scaleSlider.value !== defaultScale.toString()) {
-         scaleSlider.value = defaultScale;
-    }
+    tilesXLabel.textContent = xLabel; tilesYLabel.textContent = yLabel; scaleLabel.textContent = scaleLabelText;
+    if (scaleSlider.value !== defaultScale.toString()) { scaleSlider.value = defaultScale; }
     scaleValueSpan.textContent = defaultScale.toFixed(2);
     tilesXYHelpText.classList.toggle('hidden-control', !showHelpText);
-
-    // Don't trigger update here directly, let the calling context decide when
-    // handleSliderChangeFunc(); // Remove this direct call
+    // No direct call to handleSliderChangeFunc here
 }
 
 /**
@@ -93,67 +63,31 @@ export function updatePreEffectControlsVisibility(elements) {
         preEffectIntensitySlider, preEffectIntensityValue, preEffectWaveDistortionOptions,
         preEffectRealtimeWarning
     } = elements;
-
-    // Ensure necessary elements exist
-    if (!preEffectSelector || !preEffectOptionsContainer || !preEffectIntensityControl || !preEffectWaveDistortionOptions || !preEffectRealtimeWarning) {
-         console.warn("Missing pre-effect control elements for visibility update.");
-         return;
-    }
-
+    if (!preEffectSelector || !preEffectOptionsContainer || !preEffectIntensityControl || !preEffectWaveDistortionOptions || !preEffectRealtimeWarning) { return; }
     const selectedEffect = preEffectSelector.value;
-
-    // Hide all specific option groups first
     preEffectOptionsContainer.querySelectorAll('.effect-option-group').forEach(el => el.classList.add('hidden'));
-    preEffectRealtimeWarning.classList.add('hidden'); // Hide warning by default
-
-    if (selectedEffect === 'none') {
-        // No controls needed for 'none'
-    } else if (selectedEffect === 'waveDistortion') {
+    preEffectRealtimeWarning.classList.add('hidden');
+    if (selectedEffect === 'none') { /* No controls */ }
+    else if (selectedEffect === 'waveDistortion') {
         preEffectWaveDistortionOptions.classList.remove('hidden');
-        preEffectIntensityControl.classList.add('hidden'); // Hide generic intensity for wave
+        preEffectIntensityControl.classList.add('hidden');
     } else {
-        // Show generic intensity slider for effects that use it (noise, scanlines, fractalZoom)
         const usesGenericIntensity = ['noise', 'scanLines', 'fractalZoom'];
         const showIntensity = usesGenericIntensity.includes(selectedEffect);
         preEffectIntensityControl.classList.toggle('hidden', !showIntensity);
-
         if (showIntensity) {
-            // Update generic slider label based on effect
-            const intensityLabel = preEffectIntensityControl.querySelector('label'); // Find label within the control
-            if (intensityLabel) { // Check if label exists
-                if (selectedEffect === 'fractalZoom') {
-                    intensityLabel.textContent = 'Intensity/Depth:';
-                    // Adjust min/max if needed for fractalZoom specifically
-                    // preEffectIntensitySlider.max = 10; // Example: if fractal zoom used different range
-                     if(preEffectIntensitySlider) preEffectIntensitySlider.max = 100; // Reset range if needed
-                     if(preEffectIntensitySlider) preEffectIntensitySlider.min = 1;
-                } else if (selectedEffect === 'scanLines'){
-                     intensityLabel.textContent = 'Darkness:'
-                     if(preEffectIntensitySlider) preEffectIntensitySlider.max = 100;
-                     if(preEffectIntensitySlider) preEffectIntensitySlider.min = 0;
-                }
-                else { // Default for noise etc.
-                    intensityLabel.textContent = 'Intensity:';
-                    // Ensure standard range for others
-                     if(preEffectIntensitySlider) preEffectIntensitySlider.max = 100;
-                     if(preEffectIntensitySlider) preEffectIntensitySlider.min = 1;
-                }
+            const intensityLabel = preEffectIntensityControl.querySelector('label');
+            if (intensityLabel) {
+                 if (selectedEffect === 'fractalZoom') { intensityLabel.textContent = 'Intensity/Depth:'; if(preEffectIntensitySlider){preEffectIntensitySlider.max = 100; preEffectIntensitySlider.min=1;}}
+                 else if (selectedEffect === 'scanLines') { intensityLabel.textContent = 'Darkness:'; if(preEffectIntensitySlider){preEffectIntensitySlider.max = 100; preEffectIntensitySlider.min=0;}}
+                 else { intensityLabel.textContent = 'Intensity:'; if(preEffectIntensitySlider){preEffectIntensitySlider.max = 100; preEffectIntensitySlider.min=1;}}
             }
-            // Ensure slider value is within new bounds if min/max changed
-             if(preEffectIntensitySlider) {
-                 preEffectIntensitySlider.value = Math.max(parseFloat(preEffectIntensitySlider.min), Math.min(parseFloat(preEffectIntensitySlider.max), parseFloat(preEffectIntensitySlider.value)));
-             }
-            // Update display value
-             if(preEffectIntensityValue && preEffectIntensitySlider) preEffectIntensityValue.textContent = preEffectIntensitySlider.value;
+             if(preEffectIntensitySlider) { preEffectIntensitySlider.value = Math.max(parseFloat(preEffectIntensitySlider.min), Math.min(parseFloat(preEffectIntensitySlider.max), parseFloat(preEffectIntensitySlider.value))); }
+            if(preEffectIntensityValue && preEffectIntensitySlider) preEffectIntensityValue.textContent = preEffectIntensitySlider.value;
         }
-
-        // Show warning for potentially slow effects
-        if (drawingPreEffects.includes(selectedEffect)) {
-             preEffectRealtimeWarning.classList.remove('hidden');
-        }
+        if (drawingPreEffects.includes(selectedEffect)) { preEffectRealtimeWarning.classList.remove('hidden'); }
     }
 }
-
 
 /**
  * Updates the transform (pan/zoom) of the source preview image.
@@ -162,30 +96,20 @@ export function updatePreEffectControlsVisibility(elements) {
  * @returns {{ clampedX: number, clampedY: number }} The clamped offset values.
  */
 export function updateSourcePreviewTransform(elements, state) {
-   // ... (keep existing updateSourcePreviewTransform function) ...
     const { sourcePreview, sourcePreviewContainer } = elements;
     let { sourceZoomLevel, currentOffsetX, currentOffsetY } = state;
-
-    if (!sourcePreview || !sourcePreviewContainer || !sourcePreview.width || !sourcePreview.height) {
-        if (sourcePreview) sourcePreview.style.transform = 'translate(0px, 0px) scale(1)';
-        return { clampedX: 0, clampedY: 0 };
-    }
-
-    const previewWidth = sourcePreview.width;
-    const previewHeight = sourcePreview.height;
-    const containerWidth = sourcePreviewContainer.clientWidth;
-    const containerHeight = sourcePreviewContainer.clientHeight;
-    const scaledWidth = previewWidth * sourceZoomLevel;
-    const scaledHeight = previewHeight * sourceZoomLevel;
-    const maxOffsetX = Math.max(0, (containerWidth - scaledWidth) / 2);
-    const maxOffsetY = Math.max(0, (containerHeight - scaledHeight) / 2);
-    const minOffsetX = containerWidth - scaledWidth - maxOffsetX;
-    const minOffsetY = containerHeight - scaledHeight - maxOffsetY;
-    const clampedX = Math.max(minOffsetX || 0, Math.min(maxOffsetX, currentOffsetX)); // Add fallback for minOffset if NaN/Infinity
+    if (!sourcePreview || !sourcePreviewContainer || !sourcePreview.width || !sourcePreview.height) { if (sourcePreview) sourcePreview.style.transform = 'translate(0px, 0px) scale(1)'; return { clampedX: 0, clampedY: 0 }; }
+    const previewWidth = sourcePreview.width; const previewHeight = sourcePreview.height;
+    const containerWidth = sourcePreviewContainer.clientWidth; const containerHeight = sourcePreviewContainer.clientHeight;
+    const scaledWidth = previewWidth * sourceZoomLevel; const scaledHeight = previewHeight * sourceZoomLevel;
+    const maxOffsetX = Math.max(0, (containerWidth - scaledWidth) / 2); const maxOffsetY = Math.max(0, (containerHeight - scaledHeight) / 2);
+    const minOffsetX = containerWidth - scaledWidth - maxOffsetX; const minOffsetY = containerHeight - scaledHeight - maxOffsetY;
+    const clampedX = Math.max(minOffsetX || 0, Math.min(maxOffsetX, currentOffsetX));
     const clampedY = Math.max(minOffsetY || 0, Math.min(maxOffsetY, currentOffsetY));
     sourcePreview.style.transform = `translate(${clampedX}px, ${clampedY}px) scale(${sourceZoomLevel})`;
     return { clampedX, clampedY };
 }
+
 
 /**
  * Handles changes in the output dimension inputs to maintain aspect ratio.
@@ -194,19 +118,13 @@ export function updateSourcePreviewTransform(elements, state) {
  * @param {object} state - Application state including originalAspectRatio, currentImage.
  */
 export function handleDimensionChange(event, elements, state) {
-    // ... (keep existing handleDimensionChange function) ...
     const { outputWidthInput, outputHeightInput, keepAspectRatioCheckbox } = elements;
     const { currentImage, originalAspectRatio } = state;
     if (!currentImage || !keepAspectRatioCheckbox?.checked || !originalAspectRatio) return;
-    const changedInput = event.target;
-    if (!changedInput) return;
-    const newValue = parseInt(changedInput.value, 10);
-    if (isNaN(newValue) || newValue <= 0) return;
-    if (changedInput === outputWidthInput && outputHeightInput) {
-        outputHeightInput.value = Math.round(newValue / originalAspectRatio);
-    } else if (changedInput === outputHeightInput && outputWidthInput) {
-        outputWidthInput.value = Math.round(newValue * originalAspectRatio);
-    }
+    const changedInput = event.target; if (!changedInput) return;
+    const newValue = parseInt(changedInput.value, 10); if (isNaN(newValue) || newValue <= 0) return;
+    if (changedInput === outputWidthInput && outputHeightInput) { outputHeightInput.value = Math.round(newValue / originalAspectRatio); }
+    else if (changedInput === outputHeightInput && outputWidthInput) { outputWidthInput.value = Math.round(newValue * originalAspectRatio); }
 }
 
 /**
@@ -219,15 +137,14 @@ export function handleDimensionChange(event, elements, state) {
  */
 export function resetState(elements, state, updateTilingControlsVisibilityFunc, updatePreEffectControlsVisibilityFunc, handleSliderChangeFunc) {
     const {
-        // Destructure all needed elements
         imageLoader, sourcePreview, sourcePreviewText, finalPreview, finalPreviewText,
-        saveButton, tileShapeOptions, mirrorOptions, sliders, selects,
+        saveButton, tileShapeOptions, mirrorOptions, sliders, selects, // Use selects group
         outputWidthInput, outputHeightInput, keepAspectRatioCheckbox, sourceZoomValueSpan,
         canvas, preTileCanvas, mirrorCanvas, sourceEffectCanvas, sourcePreviewContainer,
-        // Pre-effect controls
+        // Pre-effect controls (no stack elements)
         preEffectSelector, preEffectIntensitySlider, preEffectWaveAmplitudeSlider,
         preEffectWaveFrequencySlider, preEffectWavePhaseSlider, preEffectWaveDirection,
-        preEffectWaveType, addEffectButton, clearEffectStackButton, effectStackDisplay
+        preEffectWaveType
     } = elements;
 
     // --- Reset UI Elements ---
@@ -239,37 +156,28 @@ export function resetState(elements, state, updateTilingControlsVisibilityFunc, 
     if(sourcePreviewContainer) sourcePreviewContainer.style.cursor = 'default';
     if (saveButton) saveButton.disabled = true;
 
-
     // Disable/Reset Tiling Controls
     tileShapeOptions?.forEach(opt => { opt.disabled = true; if (opt.value === 'grid') opt.checked = true; });
     mirrorOptions?.forEach(opt => { opt.disabled = true; if (opt.value === 'none') opt.checked = true; });
     if (outputWidthInput) { outputWidthInput.disabled = true; outputWidthInput.value = ''; }
     if (outputHeightInput) { outputHeightInput.disabled = true; outputHeightInput.value = ''; }
     if (keepAspectRatioCheckbox) { keepAspectRatioCheckbox.disabled = true; keepAspectRatioCheckbox.checked = true; }
-    // Reset Tiling Slider Values & Display (using elements directly for default values)
-    if (elements.tilesXSlider) elements.tilesXSlider.value = 1; // Keep 1x1 default
-    if (elements.tilesYSlider) elements.tilesYSlider.value = 1; // Keep 1x1 default
+    // Reset Tiling Slider Values to 1x1 defaults
+    if (elements.tilesXSlider) elements.tilesXSlider.value = 1;
+    if (elements.tilesYSlider) elements.tilesYSlider.value = 1;
     if (elements.skewSlider) elements.skewSlider.value = 0.5;
     if (elements.staggerSlider) elements.staggerSlider.value = 0.5;
     if (elements.scaleSlider) elements.scaleSlider.value = 1.0;
-    if (elements.preTileXSlider) elements.preTileXSlider.value = 1; // Keep 1x1 default
-    if (elements.preTileYSlider) elements.preTileYSlider.value = 1; // Keep 1x1 default
+    if (elements.preTileXSlider) elements.preTileXSlider.value = 1;
+    if (elements.preTileYSlider) elements.preTileYSlider.value = 1;
     if (elements.sourceZoomSlider) elements.sourceZoomSlider.value = 1.0;
     if (sourceZoomValueSpan) sourceZoomValueSpan.textContent = '1.0';
 
-
     // --- Disable/Reset Pre-Effect Controls ---
     if (preEffectSelector) { preEffectSelector.disabled = true; preEffectSelector.value = 'none'; }
-    if (addEffectButton) addEffectButton.disabled = true; // Disable Add button
-    if (clearEffectStackButton) clearEffectStackButton.disabled = true; // Disable Clear button
-    if (effectStackDisplay) { // Clear stack display
-         effectStackDisplay.innerHTML = '<span class="text-gray-400">No effects added yet.</span>';
-    }
-
     // Disable all sliders and selects (covers both tiling and effect controls)
     sliders?.forEach(el => { if(el) el.disabled = true; });
     selects?.forEach(el => { if(el) el.disabled = true; });
-
     // Reset pre-effect slider values to defaults
     if (elements.preEffectIntensitySlider) elements.preEffectIntensitySlider.value = 50;
     if (elements.preEffectWaveAmplitudeSlider) elements.preEffectWaveAmplitudeSlider.value = 10;
@@ -278,17 +186,9 @@ export function resetState(elements, state, updateTilingControlsVisibilityFunc, 
     if (elements.preEffectWaveDirection) elements.preEffectWaveDirection.value = 'horizontal';
     if (elements.preEffectWaveType) elements.preEffectWaveType.value = 'sine';
 
-
     // Clear Canvases
-    [canvas, preTileCanvas, mirrorCanvas, sourceEffectCanvas].forEach(c => { // Added sourceEffectCanvas
-        if (c && c.width > 0) {
-            try { // Add try-catch for context retrieval
-                const ctx = c.getContext('2d');
-                if (ctx) ctx.clearRect(0, 0, c.width, c.height);
-            } catch(e) {
-                console.error("Error clearing canvas:", c.id, e);
-            }
-        }
+    [canvas, preTileCanvas, mirrorCanvas, sourceEffectCanvas].forEach(c => {
+        if (c && c.width > 0) { try { const ctx = c.getContext('2d'); if (ctx) ctx.clearRect(0, 0, c.width, c.height); } catch(e) {} }
     });
 
     // --- Reset State Variables ---
@@ -301,119 +201,62 @@ export function resetState(elements, state, updateTilingControlsVisibilityFunc, 
     state.sourceZoomLevel = 1.0;
     if(state.debounceTimer) clearTimeout(state.debounceTimer);
     state.debounceTimer = null;
-    // --- Clear effect stack in state ---
-    state.effectStack = [];
-
+    // No effect stack to clear
 
     // Update UI based on reset state
-    // Ensure callbacks are functions before calling
-    if (typeof updateTilingControlsVisibilityFunc === 'function') {
-        updateTilingControlsVisibilityFunc();
-    }
-    if (typeof updatePreEffectControlsVisibilityFunc === 'function') {
-        updatePreEffectControlsVisibilityFunc();
-    }
-    if (typeof handleSliderChangeFunc === 'function') {
-        handleSliderChangeFunc(); // Update slider value displays based on reset values
-    } else {
-        // Manually update spans if callback is missing (fallback) - Requires element access
-        if(elements.tilesXValueSpan && elements.tilesXSlider) elements.tilesXValueSpan.textContent = elements.tilesXSlider.value;
-        // ... update other spans similarly ...
-        if(elements.preEffectIntensityValue && elements.preEffectIntensitySlider) elements.preEffectIntensityValue.textContent = elements.preEffectIntensitySlider.value;
-        // ... etc.
-    }
+    if (typeof updateTilingControlsVisibilityFunc === 'function') updateTilingControlsVisibilityFunc();
+    if (typeof updatePreEffectControlsVisibilityFunc === 'function') updatePreEffectControlsVisibilityFunc();
+    if (typeof handleSliderChangeFunc === 'function') handleSliderChangeFunc();
 }
 
 
 // --- Panning Logic ---
-/** Starts the panning operation */
 export function startPan(event, elements, state) {
-    console.log("startPan: Function entered."); // Log F
-
-    if (!state.currentImage) {
-        console.log("startPan: Returning because state.currentImage is null/falsy."); // Log G
-        return;
-    }
-    if (event.button !== 0) {
-        console.log(`startPan: Returning because event.button is ${event.button} (expected 0 for left button).`); // Log H
-        return;
-    }
-
-    // Prevent default image dragging behavior ONLY if clicking on the preview image itself
-    if (event.target === elements.sourcePreview) {
-         console.log("startPan: Preventing default drag on sourcePreview image."); // Log I
-         event.preventDefault();
-    }
-
-    console.log("startPan: Setting isDragging = true"); // Log J
+    if (!state.currentImage || event.button !== 0) return;
+    if (event.target === elements.sourcePreview) { event.preventDefault(); }
     state.isDragging = true;
-    state.dragStartX = event.pageX;
-    state.dragStartY = event.pageY;
-    state.startOffsetX = state.currentOffsetX;
-    state.startOffsetY = state.currentOffsetY;
+    state.dragStartX = event.pageX; state.dragStartY = event.pageY;
+    state.startOffsetX = state.currentOffsetX; state.startOffsetY = state.currentOffsetY;
     if(elements.sourcePreviewContainer) elements.sourcePreviewContainer.style.cursor = 'grabbing';
-    console.log("startPan: Drag state initialized."); // Log K
 }
-/** Handles mouse movement during panning */
+
 export function panMove(event, elements, state, updateSourcePreviewTransformFunc, handleSliderChangeFunc) {
-    // --- ADD LOGS ---
-
-
-    // This is likely the line causing the error (around 343)
-    if (!state.isDragging) {
-         return;
-    }
-
-    // If it gets past the check, log that too
-    console.log("panMove: Currently dragging."); // Log D
-
-    // --- REST OF THE FUNCTION ---
+    if (!state || !state.isDragging) return; // Added check for state
     const dx = event.pageX - state.dragStartX;
     const dy = event.pageY - state.dragStartY;
     state.currentOffsetX = state.startOffsetX + dx;
     state.currentOffsetY = state.startOffsetY + dy;
-    const { clampedX, clampedY } = updateSourcePreviewTransformFunc();
-    state.currentOffsetX = clampedX; state.currentOffsetY = clampedY;
-    if (typeof handleSliderChangeFunc === 'function') handleSliderChangeFunc(); // Trigger processing update
+    // Ensure update functions are valid before calling
+    if (typeof updateSourcePreviewTransformFunc === 'function'){
+        const { clampedX, clampedY } = updateSourcePreviewTransformFunc();
+        state.currentOffsetX = clampedX; state.currentOffsetY = clampedY;
+    }
+    if (typeof handleSliderChangeFunc === 'function') handleSliderChangeFunc();
 }
 
-/** Ends the panning operation */
 export function endPan(elements, state) {
-   // ... (keep existing endPan function) ...
-   if (!state.isDragging) return;
+   if (!state || !state.isDragging) return; // Added check for state
    state.isDragging = false;
    if(elements.sourcePreviewContainer) elements.sourcePreviewContainer.style.cursor = 'grab';
 }
 
-/** Handles zoom slider input */
 export function handleSourceZoom(elements, state, updateSourcePreviewTransformFunc, handleSliderChangeFunc) {
-   // ... (keep existing handleSourceZoom function) ...
-    if (!state.currentImage || !elements.sourceZoomSlider) return;
+    if (!state || !state.currentImage || !elements.sourceZoomSlider) return; // Added check for state
     state.sourceZoomLevel = parseFloat(elements.sourceZoomSlider.value);
     if (elements.sourceZoomValueSpan) elements.sourceZoomValueSpan.textContent = state.sourceZoomLevel.toFixed(1);
-    const { clampedX, clampedY } = updateSourcePreviewTransformFunc();
-    state.currentOffsetX = clampedX; state.currentOffsetY = clampedY;
-    if (typeof handleSliderChangeFunc === 'function') handleSliderChangeFunc(); // Trigger processing update
+    if (typeof updateSourcePreviewTransformFunc === 'function') {
+        const { clampedX, clampedY } = updateSourcePreviewTransformFunc();
+        state.currentOffsetX = clampedX; state.currentOffsetY = clampedY;
+    }
+    if (typeof handleSliderChangeFunc === 'function') handleSliderChangeFunc();
 }
 
-/**
-* Sets up an event listener for a slider to update its display value and optionally trigger a callback.
-* @param {HTMLInputElement | null} slider - The slider input element.
-* @param {HTMLElement | null} valueDisplay - The element to display the slider's value.
-* @param {Function} [callback] - Optional function to call when the slider value changes.
-* @param {Function} [formatter=val => val] - Optional function to format the displayed value.
-*/
 export function setupSliderListener(slider, valueDisplay, callback, formatter = val => val) {
-    if (!slider || !valueDisplay) {
-        // console.warn("setupSliderListener: Slider or ValueDisplay element not found.");
-        return; // Basic check
-    }
+    if (!slider || !valueDisplay) { return; }
     const update = () => {
-        if (valueDisplay) valueDisplay.textContent = formatter(slider.value); // Check again inside closure
-        if (typeof callback === 'function') {
-            callback();
-        }
+        if (valueDisplay) valueDisplay.textContent = formatter(slider.value);
+        if (typeof callback === 'function') { callback(); }
     };
     slider.addEventListener('input', update);
-    update(); // Call once to set initial value display
+    update(); // Initial call
 }
