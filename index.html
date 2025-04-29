@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Tiler & Effects</title> <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Image Tiler & Effects</title> <script src="https://cdn.tailwindcss.com"></script> <link rel="stylesheet" href="css/styles.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
@@ -39,9 +37,9 @@
         </div>
 
         <div id="preEffectControls" class="mb-6 border-t pt-6">
-            <label class="block text-sm font-medium text-gray-600 mb-3">2. Apply Pre-Effect (Optional):</label>
+            <label class="block text-sm font-medium text-gray-600 mb-3">2. Add Pre-Effects to Stack (Applied Sequentially):</label>
 
-            <div class="control-row mb-4 pb-3 border-b border-gray-200">
+            <div class="control-row mb-2 pb-2 border-b border-gray-200">
                 <label for="preEffectSelector">Effect:</label>
                 <select id="preEffectSelector" class="shadow-sm">
                     <option value="none" selected>None</option> <option value="noise">Noise</option>
@@ -49,9 +47,12 @@
                     <option value="waveDistortion">Wave Distortion</option>
                     <option value="fractalZoom">Fractal Zoom</option>
                 </select>
-                </div>
+                <button id="addEffectButton" class="bg-indigo-500 hover:bg-indigo-700 text-white font-semibold py-1 px-3 rounded text-xs disabled:opacity-50" disabled>
+                    Add Effect to Stack
+                </button>
+            </div>
 
-            <div id="preEffectOptionsContainer" class="effect-options"> <div id="preEffectIntensityControl" class="effect-option-group hidden"> <div>
+            <div id="preEffectOptionsContainer" class="effect-options mb-3"> <div id="preEffectIntensityControl" class="effect-option-group hidden"> <div>
                          <label for="preEffectIntensitySlider">Intensity/Depth:</label>
                          <input type="range" id="preEffectIntensitySlider" min="1" max="100" value="50">
                          <span id="preEffectIntensityValue">50</span>
@@ -92,8 +93,20 @@
                      </div>
                 </div>
                 </div>
-             <p id="preEffectRealtimeWarning" class="text-xs text-gray-500 text-center mt-2 hidden">Effect preview applied before tiling. Zoom/FractalZoom may be slow.</p>
+             <p id="preEffectRealtimeWarning" class="text-xs text-gray-500 text-center mt-1 hidden">Changing effect parameters updates the entire stack preview.</p>
+
+             <div class="mt-3 pt-3 border-t border-gray-200">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Current Effect Stack (Applied Top to Bottom):</label>
+                <div id="effectStackDisplay" class="text-sm text-gray-700 bg-gray-50 p-2 rounded border border-gray-200 min-h-[40px] mb-2">
+                    <span class="text-gray-400">No effects added yet.</span>
+                </div>
+                <button id="clearEffectStackButton" class="bg-red-500 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded text-xs disabled:opacity-50" disabled>
+                    Clear Stack
+                </button>
+             </div>
         </div>
+
+
         <div class="mb-6 border-t pt-6">
              <label class="block text-sm font-medium text-gray-600 mb-3">3. Adjust Tiling:</label>
 
@@ -124,18 +137,32 @@
              </div>
 
              <div class="grid grid-cols-1 md:grid-cols-5 gap-x-4 gap-y-3 items-start mb-4">
-                <div><label for="tilesX" class="slider-label"><span id="tilesXLabel">Tiles X</span> (<span id="tilesXValue">3</span>):</label><input type="range" id="tilesX" name="tilesX" min="1" max="30" value="1" class="w-full"></div>
-                <div><label for="tilesY" class="slider-label"><span id="tilesYLabel">Tiles Y</span> (<span id="tilesYValue">3</span>):</label><input type="range" id="tilesY" name="tilesY" min="1" max="30" value="1" class="w-full"><p id="tilesXYHelpText" class="text-xs text-gray-400 mt-1 hidden-control">Determines overall scale</p></div>
-                <div id="skewControl" class="control-group hidden-control"><label for="skewFactor" class="slider-label">Skew (<span id="skewValue">0.5</span>):</label><input type="range" id="skewFactor" name="skewFactor" min="0" max="1.5" value="0.5" step="0.1" class="w-full"></div>
-                <div id="staggerControl" class="control-group hidden-control"><label for="staggerOffset" class="slider-label">Stagger (<span id="staggerValue">0.5</span>):</label><input type="range" id="staggerOffset" name="staggerOffset" min="0" max="1" value="0.5" step="0.05" class="w-full"></div>
-                <div><label for="tileScale" class="slider-label"><span id="scaleLabel">Shape Scale</span> (<span id="scaleValue">1.0</span>):</label><input type="range" id="tileScale" name="tileScale" min="0.5" max="2.0" value="1.0" step="0.01"><p id="scaleHelpText" class="text-xs text-gray-400 mt-1">Adjust size of individual shapes</p></div>
+                <div>
+                    <label for="tilesX" class="slider-label"><span id="tilesXLabel">Tiles X</span> (<span id="tilesXValue">1</span>):</label> <input type="range" id="tilesX" name="tilesX" min="1" max="30" value="1" class="w-full"> </div>
+                 <div>
+                    <label for="tilesY" class="slider-label"><span id="tilesYLabel">Tiles Y</span> (<span id="tilesYValue">1</span>):</label> <input type="range" id="tilesY" name="tilesY" min="1" max="30" value="1" class="w-full"> <p id="tilesXYHelpText" class="text-xs text-gray-400 mt-1 hidden-control">Determines overall scale</p>
+                 </div>
+                 <div id="skewControl" class="control-group hidden-control">
+                    <label for="skewFactor" class="slider-label">Skew (<span id="skewValue">0.5</span>):</label>
+                    <input type="range" id="skewFactor" name="skewFactor" min="0" max="1.5" value="0.5" step="0.1" class="w-full">
+                 </div>
+                 <div id="staggerControl" class="control-group hidden-control">
+                    <label for="staggerOffset" class="slider-label">Stagger (<span id="staggerValue">0.5</span>):</label>
+                    <input type="range" id="staggerOffset" name="staggerOffset" min="0" max="1" value="0.5" step="0.05" class="w-full">
+                 </div>
+                 <div>
+                    <label for="tileScale" class="slider-label"><span id="scaleLabel">Shape Scale</span> (<span id="scaleValue">1.0</span>):</label>
+                    <input type="range" id="tileScale" name="tileScale" min="0.5" max="2.0" value="1.0" step="0.01">
+                    <p id="scaleHelpText" class="text-xs text-gray-400 mt-1">Adjust size of individual shapes</p>
+                 </div>
              </div>
 
              <div class="grid grid-cols-1 md:grid-cols-5 gap-x-4 gap-y-3 items-start mt-3 pt-3 border-t border-gray-200">
-                <div class="md:col-span-2"><label for="preTileX" class="slider-label">Pre-Tile Grid X (<span id="preTileXValue">3</span>):</label><input type="range" id="preTileX" name="preTileX" min="1" max="10" value="1" step="1" class="w-full"></div>
-                <div class="md:col-span-2"><label for="preTileY" class="slider-label">Pre-Tile Grid Y (<span id="preTileYValue">3</span>):</label><input type="range" id="preTileY" name="preTileY" min="1" max="10" value="1" step="1" class="w-full"></div>
-                <div class="md:col-span-1"></div>
-             </div>
+                <div class="md:col-span-2">
+                    <label for="preTileX" class="slider-label">Pre-Tile Grid X (<span id="preTileXValue">1</span>):</label> <input type="range" id="preTileX" name="preTileX" min="1" max="10" value="1" step="1" class="w-full"> </div>
+                 <div class="md:col-span-2">
+                    <label for="preTileY" class="slider-label">Pre-Tile Grid Y (<span id="preTileYValue">1</span>):</label> <input type="range" id="preTileY" name="preTileY" min="1" max="10" value="1" step="1" class="w-full"> </div>
+                 <div class="md:col-span-1"></div> </div>
              <p class="text-xs text-gray-500 mt-2 text-center">Adjust sliders to see the effect. Pre-Tile Grid controls the pattern scale within each tile.</p>
         </div>
 
