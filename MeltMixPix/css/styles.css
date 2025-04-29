@@ -1,0 +1,32 @@
+/* Custom styles (similar to previous version) */
+body { font-family: 'Inter', sans-serif; }
+#canvasContainer { max-width: 100%; max-height: 60vh; overflow: auto; margin: 1rem auto; border: 1px dashed #d1d5db; border-radius: 0.5rem; background-color: #f9fafb; display: flex; justify-content: center; align-items: center; }
+canvas { display: block; border-radius: 0.25rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); image-rendering: pixelated; transform-origin: top left; transition: transform 0.1s ease-out; max-width: none !important; }
+button, label, select, input[type="number"], input[type="checkbox"] { cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease, box-shadow 0.1s ease; margin: 0 0.25rem; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 0.875rem; vertical-align: middle; }
+button, label[for="imageLoader"] { border: 1px solid transparent; background-color: #6366f1; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+button:hover, label[for="imageLoader"]:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+label[for="imageLoader"] { background-color: #3b82f6; } label[for="imageLoader"]:hover { background-color: #2563eb; }
+#applyEffectButton { background-color: #a855f7; } #applyEffectButton:hover { background-color: #9333ea; }
+#resetButton { background-color: #f59e0b; } #resetButton:hover { background-color: #d97706; }
+#saveButton { background-color: #22c55e; } #saveButton:hover { background-color: #16a34a; }
+#undoButton, #redoButton, .zoom-button { background-color: #6b7280; padding: 0.4rem 0.8rem; }
+#undoButton:hover, #redoButton:hover, .zoom-button:hover { background-color: #4b5563; }
+button:active, label:active { transform: scale(0.98) translateY(1px); box-shadow: none; }
+button:disabled, select:disabled, input[type="range"]:disabled, input[type="number"]:disabled, input[type="checkbox"]:disabled { opacity: 0.5; cursor: not-allowed; background-color: #e5e7eb !important; color: #6b7280 !important; border-color: #d1d5db !important; box-shadow: none; }
+select { background-color: white; padding: 0.5rem 2rem 0.5rem 0.75rem; }
+input[type="number"] { width: 80px; text-align: right; padding-right: 0.5rem; -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="checkbox"] { width: 1rem; height: 1rem; padding: 0; margin-right: 0.5rem; border-radius: 0.25rem; accent-color: #6366f1; border: 1px solid #d1d5db; }
+input[type="range"] { cursor: pointer; width: 120px; vertical-align: middle; accent-color: #6366f1; }
+input[type="file"] { width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1; }
+.controls-container { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.control-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.5rem 0.75rem; width: 100%; }
+.effect-options { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; margin-top: 0.5rem; padding: 0.5rem; }
+.effect-option-group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.5rem 1.5rem; width: 100%; padding-bottom: 0.5rem; border-bottom: 1px dotted #e5e7eb; }
+.effect-option-group:last-child { border-bottom: none; }
+.effect-option-group > div { display: flex; align-items: center; gap: 0.5rem; }
+.effect-option-label { font-weight: 600; color: #4b5563; margin-bottom: 0.5rem; width: 100%; text-align: center; font-size: 0.9rem; padding-bottom: 0.25rem; }
+.control-row label { margin: 0; font-size: 0.875rem; color: #4b5563; font-weight: 500; border: none; padding: 0.5rem 0; background-color: transparent; white-space: nowrap; }
+.control-row label[for="keepAspectRatio"] { padding: 0; margin-left: -0.25rem; user-select: none; }
+.control-row span { font-size: 0.875rem; color: #4b5563; min-width: 25px; text-align: right; font-family: monospace; }
+#realtimeWarning { font-size: 0.75rem; color: #ef4444; margin-top: -0.5rem; }
