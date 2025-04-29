@@ -35,11 +35,18 @@ export function updateTilingControlsVisibility(elements, handleSliderChangeFunc)
         scaleLabel, scaleSlider, scaleValueSpan, tilesXYHelpText
     } = elements;
 
+    // Ensure elements exist before proceeding
+    if (!tileShapeOptions || !skewControl || !staggerControl || !tilesXLabel || !tilesYLabel || !scaleLabel || !scaleSlider || !scaleValueSpan || !tilesXYHelpText) {
+        console.warn("Missing tiling control elements for visibility update.");
+        return;
+    }
+
+
     const selectedShape = document.querySelector('input[name="tileShape"]:checked')?.value || 'grid';
 
-    skewControl?.classList.add('hidden-control');
-    staggerControl?.classList.add('hidden-control');
-    tilesXYHelpText?.classList.add('hidden-control');
+    skewControl.classList.add('hidden-control');
+    staggerControl.classList.add('hidden-control');
+    tilesXYHelpText.classList.add('hidden-control');
 
     let defaultScale = 1.0;
     let scaleLabelText = 'Shape Scale';
@@ -53,7 +60,7 @@ export function updateTilingControlsVisibility(elements, handleSliderChangeFunc)
         case 'brick_wall': scaleLabelText = 'Tile Scale'; break;
         case 'herringbone':
         case 'basketweave': xLabel = 'Planks X'; yLabel = 'Planks Y'; scaleLabelText = 'Plank Scale'; break;
-        case 'skewed': skewControl?.classList.remove('hidden-control'); staggerControl?.classList.remove('hidden-control'); scaleLabelText = 'Overlap Scale'; defaultScale = 1.05; break;
+        case 'skewed': skewControl.classList.remove('hidden-control'); staggerControl.classList.remove('hidden-control'); scaleLabelText = 'Overlap Scale'; defaultScale = 1.05; break;
         case 'hexagon': xLabel = 'Approx Tiles X'; yLabel = 'Approx Tiles Y'; scaleLabelText = 'Hexagon Scale'; showHelpText = true; break;
         case 'semi_octagon_square': xLabel = 'Approx Tiles X'; yLabel = 'Approx Tiles Y'; scaleLabelText = 'Shape Scale'; showHelpText = true; break;
         case 'l_shape_square': xLabel = 'Approx Units X'; yLabel = 'Approx Units Y'; scaleLabelText = 'Shape Scale'; showHelpText = true; break;
@@ -62,21 +69,20 @@ export function updateTilingControlsVisibility(elements, handleSliderChangeFunc)
         case 'rhombus': xLabel = 'Rhombus Count X'; yLabel = 'Rhombus Count Y'; scaleLabelText = 'Rhombus Scale'; break;
     }
 
-    if (tilesXLabel) tilesXLabel.textContent = xLabel;
-    if (tilesYLabel) tilesYLabel.textContent = yLabel;
-    if (scaleLabel) scaleLabel.textContent = scaleLabelText;
-    // Only reset scale if the slider exists (it might not if the element map is incomplete)
-    if (scaleSlider && scaleSlider.value !== defaultScale.toString()) {
+    tilesXLabel.textContent = xLabel;
+    tilesYLabel.textContent = yLabel;
+    scaleLabel.textContent = scaleLabelText;
+    // Only reset scale if the slider exists and value differs
+    if (scaleSlider.value !== defaultScale.toString()) {
          scaleSlider.value = defaultScale;
     }
-    if (scaleValueSpan) scaleValueSpan.textContent = defaultScale.toFixed(2);
-    if (tilesXYHelpText) tilesXYHelpText.classList.toggle('hidden-control', !showHelpText);
+    scaleValueSpan.textContent = defaultScale.toFixed(2);
+    tilesXYHelpText.classList.toggle('hidden-control', !showHelpText);
 
     // Don't trigger update here directly, let the calling context decide when
     // handleSliderChangeFunc(); // Remove this direct call
 }
 
-// --- ADD THIS FUNCTION ---
 /**
  * Updates visibility of PRE-EFFECT controls based on the selected effect.
  * @param {object} elements - Object containing references to pre-effect UI elements.
@@ -88,7 +94,11 @@ export function updatePreEffectControlsVisibility(elements) {
         preEffectRealtimeWarning
     } = elements;
 
-    if (!preEffectSelector || !preEffectOptionsContainer || !preEffectIntensityControl || !preEffectWaveDistortionOptions || !preEffectRealtimeWarning) return;
+    // Ensure necessary elements exist
+    if (!preEffectSelector || !preEffectOptionsContainer || !preEffectIntensityControl || !preEffectWaveDistortionOptions || !preEffectRealtimeWarning) {
+         console.warn("Missing pre-effect control elements for visibility update.");
+         return;
+    }
 
     const selectedEffect = preEffectSelector.value;
 
@@ -115,12 +125,24 @@ export function updatePreEffectControlsVisibility(elements) {
                     intensityLabel.textContent = 'Intensity/Depth:';
                     // Adjust min/max if needed for fractalZoom specifically
                     // preEffectIntensitySlider.max = 10; // Example: if fractal zoom used different range
-                } else {
+                     if(preEffectIntensitySlider) preEffectIntensitySlider.max = 100; // Reset range if needed
+                     if(preEffectIntensitySlider) preEffectIntensitySlider.min = 1;
+                } else if (selectedEffect === 'scanLines'){
+                     intensityLabel.textContent = 'Darkness:'
+                     if(preEffectIntensitySlider) preEffectIntensitySlider.max = 100;
+                     if(preEffectIntensitySlider) preEffectIntensitySlider.min = 0;
+                }
+                else { // Default for noise etc.
                     intensityLabel.textContent = 'Intensity:';
                     // Ensure standard range for others
-                    // preEffectIntensitySlider.max = 100;
+                     if(preEffectIntensitySlider) preEffectIntensitySlider.max = 100;
+                     if(preEffectIntensitySlider) preEffectIntensitySlider.min = 1;
                 }
             }
+            // Ensure slider value is within new bounds if min/max changed
+             if(preEffectIntensitySlider) {
+                 preEffectIntensitySlider.value = Math.max(parseFloat(preEffectIntensitySlider.min), Math.min(parseFloat(preEffectIntensitySlider.max), parseFloat(preEffectIntensitySlider.value)));
+             }
             // Update display value
              if(preEffectIntensityValue && preEffectIntensitySlider) preEffectIntensityValue.textContent = preEffectIntensitySlider.value;
         }
@@ -159,9 +181,9 @@ export function updateSourcePreviewTransform(elements, state) {
     const maxOffsetY = Math.max(0, (containerHeight - scaledHeight) / 2);
     const minOffsetX = containerWidth - scaledWidth - maxOffsetX;
     const minOffsetY = containerHeight - scaledHeight - maxOffsetY;
-    const clampedX = Math.max(minOffsetX, Math.min(maxOffsetX, currentOffsetX));
-    const clampedY = Math.max(minOffsetY, Math.min(maxOffsetY, currentOffsetY));
-    sourcePreview.style.transform = `translate(${clampedX}px, <span class="math-inline">\{clampedY\}px\) scale\(</span>{sourceZoomLevel})`;
+    const clampedX = Math.max(minOffsetX || 0, Math.min(maxOffsetX, currentOffsetX)); // Add fallback for minOffset if NaN/Infinity
+    const clampedY = Math.max(minOffsetY || 0, Math.min(maxOffsetY, currentOffsetY));
+    sourcePreview.style.transform = `translate(${clampedX}px, ${clampedY}px) scale(${sourceZoomLevel})`;
     return { clampedX, clampedY };
 }
 
@@ -175,13 +197,14 @@ export function handleDimensionChange(event, elements, state) {
     // ... (keep existing handleDimensionChange function) ...
     const { outputWidthInput, outputHeightInput, keepAspectRatioCheckbox } = elements;
     const { currentImage, originalAspectRatio } = state;
-    if (!currentImage || !keepAspectRatioCheckbox.checked || !originalAspectRatio) return;
+    if (!currentImage || !keepAspectRatioCheckbox?.checked || !originalAspectRatio) return;
     const changedInput = event.target;
+    if (!changedInput) return;
     const newValue = parseInt(changedInput.value, 10);
     if (isNaN(newValue) || newValue <= 0) return;
-    if (changedInput === outputWidthInput) {
+    if (changedInput === outputWidthInput && outputHeightInput) {
         outputHeightInput.value = Math.round(newValue / originalAspectRatio);
-    } else if (changedInput === outputHeightInput) {
+    } else if (changedInput === outputHeightInput && outputWidthInput) {
         outputWidthInput.value = Math.round(newValue * originalAspectRatio);
     }
 }
@@ -196,15 +219,15 @@ export function handleDimensionChange(event, elements, state) {
  */
 export function resetState(elements, state, updateTilingControlsVisibilityFunc, updatePreEffectControlsVisibilityFunc, handleSliderChangeFunc) {
     const {
+        // Destructure all needed elements
         imageLoader, sourcePreview, sourcePreviewText, finalPreview, finalPreviewText,
-        saveButton, tileShapeOptions, mirrorOptions, sliders, outputWidthInput,
-        outputHeightInput, keepAspectRatioCheckbox, sourceZoomValueSpan,
-        canvas, preTileCanvas, mirrorCanvas, sourceEffectCanvas, // Added sourceEffectCanvas
-        sourcePreviewContainer,
+        saveButton, tileShapeOptions, mirrorOptions, sliders, selects,
+        outputWidthInput, outputHeightInput, keepAspectRatioCheckbox, sourceZoomValueSpan,
+        canvas, preTileCanvas, mirrorCanvas, sourceEffectCanvas, sourcePreviewContainer,
         // Pre-effect controls
         preEffectSelector, preEffectIntensitySlider, preEffectWaveAmplitudeSlider,
         preEffectWaveFrequencySlider, preEffectWavePhaseSlider, preEffectWaveDirection,
-        preEffectWaveType
+        preEffectWaveType, addEffectButton, clearEffectStackButton, effectStackDisplay
     } = elements;
 
     // --- Reset UI Elements ---
@@ -216,47 +239,55 @@ export function resetState(elements, state, updateTilingControlsVisibilityFunc, 
     if(sourcePreviewContainer) sourcePreviewContainer.style.cursor = 'default';
     if (saveButton) saveButton.disabled = true;
 
+
     // Disable/Reset Tiling Controls
     tileShapeOptions?.forEach(opt => { opt.disabled = true; if (opt.value === 'grid') opt.checked = true; });
     mirrorOptions?.forEach(opt => { opt.disabled = true; if (opt.value === 'none') opt.checked = true; });
-    sliders?.forEach(slider => { if(slider) slider.disabled = true; }); // Includes tiling sliders
     if (outputWidthInput) { outputWidthInput.disabled = true; outputWidthInput.value = ''; }
     if (outputHeightInput) { outputHeightInput.disabled = true; outputHeightInput.value = ''; }
     if (keepAspectRatioCheckbox) { keepAspectRatioCheckbox.disabled = true; keepAspectRatioCheckbox.checked = true; }
-
-    // Reset Tiling Slider Values & Display
-    if (elements.tilesXSlider) elements.tilesXSlider.value = 1;
-    if (elements.tilesYSlider) elements.tilesYSlider.value = 1;
+    // Reset Tiling Slider Values & Display (using elements directly for default values)
+    if (elements.tilesXSlider) elements.tilesXSlider.value = 1; // Keep 1x1 default
+    if (elements.tilesYSlider) elements.tilesYSlider.value = 1; // Keep 1x1 default
     if (elements.skewSlider) elements.skewSlider.value = 0.5;
     if (elements.staggerSlider) elements.staggerSlider.value = 0.5;
     if (elements.scaleSlider) elements.scaleSlider.value = 1.0;
-    if (elements.preTileXSlider) elements.preTileXSlider.value = 1;
-    if (elements.preTileYSlider) elements.preTileYSlider.value = 1;
+    if (elements.preTileXSlider) elements.preTileXSlider.value = 1; // Keep 1x1 default
+    if (elements.preTileYSlider) elements.preTileYSlider.value = 1; // Keep 1x1 default
     if (elements.sourceZoomSlider) elements.sourceZoomSlider.value = 1.0;
     if (sourceZoomValueSpan) sourceZoomValueSpan.textContent = '1.0';
 
+
     // --- Disable/Reset Pre-Effect Controls ---
     if (preEffectSelector) { preEffectSelector.disabled = true; preEffectSelector.value = 'none'; }
-    // Disable all pre-effect sliders/selects
-    const preEffectControls = [
-        preEffectIntensitySlider, preEffectWaveAmplitudeSlider, preEffectWaveFrequencySlider,
-        preEffectWavePhaseSlider, preEffectWaveDirection, preEffectWaveType
-    ];
-    preEffectControls.forEach(el => { if (el) el.disabled = true; });
+    if (addEffectButton) addEffectButton.disabled = true; // Disable Add button
+    if (clearEffectStackButton) clearEffectStackButton.disabled = true; // Disable Clear button
+    if (effectStackDisplay) { // Clear stack display
+         effectStackDisplay.innerHTML = '<span class="text-gray-400">No effects added yet.</span>';
+    }
+
+    // Disable all sliders and selects (covers both tiling and effect controls)
+    sliders?.forEach(el => { if(el) el.disabled = true; });
+    selects?.forEach(el => { if(el) el.disabled = true; });
 
     // Reset pre-effect slider values to defaults
-    if (preEffectIntensitySlider) preEffectIntensitySlider.value = 50;
-    if (preEffectWaveAmplitudeSlider) preEffectWaveAmplitudeSlider.value = 10;
-    if (preEffectWaveFrequencySlider) preEffectWaveFrequencySlider.value = 5;
-    if (preEffectWavePhaseSlider) preEffectWavePhaseSlider.value = 0;
-    if (preEffectWaveDirection) preEffectWaveDirection.value = 'horizontal';
-    if (preEffectWaveType) preEffectWaveType.value = 'sine';
+    if (elements.preEffectIntensitySlider) elements.preEffectIntensitySlider.value = 50;
+    if (elements.preEffectWaveAmplitudeSlider) elements.preEffectWaveAmplitudeSlider.value = 10;
+    if (elements.preEffectWaveFrequencySlider) elements.preEffectWaveFrequencySlider.value = 5;
+    if (elements.preEffectWavePhaseSlider) elements.preEffectWavePhaseSlider.value = 0;
+    if (elements.preEffectWaveDirection) elements.preEffectWaveDirection.value = 'horizontal';
+    if (elements.preEffectWaveType) elements.preEffectWaveType.value = 'sine';
+
 
     // Clear Canvases
     [canvas, preTileCanvas, mirrorCanvas, sourceEffectCanvas].forEach(c => { // Added sourceEffectCanvas
         if (c && c.width > 0) {
-            const ctx = c.getContext('2d');
-            if (ctx) ctx.clearRect(0, 0, c.width, c.height);
+            try { // Add try-catch for context retrieval
+                const ctx = c.getContext('2d');
+                if (ctx) ctx.clearRect(0, 0, c.width, c.height);
+            } catch(e) {
+                console.error("Error clearing canvas:", c.id, e);
+            }
         }
     });
 
@@ -270,11 +301,27 @@ export function resetState(elements, state, updateTilingControlsVisibilityFunc, 
     state.sourceZoomLevel = 1.0;
     if(state.debounceTimer) clearTimeout(state.debounceTimer);
     state.debounceTimer = null;
+    // --- Clear effect stack in state ---
+    state.effectStack = [];
+
 
     // Update UI based on reset state
-    updateTilingControlsVisibilityFunc(); // Update tiling controls
-    updatePreEffectControlsVisibilityFunc(); // Update pre-effect controls
-    handleSliderChangeFunc(); // Update slider value displays
+    // Ensure callbacks are functions before calling
+    if (typeof updateTilingControlsVisibilityFunc === 'function') {
+        updateTilingControlsVisibilityFunc();
+    }
+    if (typeof updatePreEffectControlsVisibilityFunc === 'function') {
+        updatePreEffectControlsVisibilityFunc();
+    }
+    if (typeof handleSliderChangeFunc === 'function') {
+        handleSliderChangeFunc(); // Update slider value displays based on reset values
+    } else {
+        // Manually update spans if callback is missing (fallback) - Requires element access
+        if(elements.tilesXValueSpan && elements.tilesXSlider) elements.tilesXValueSpan.textContent = elements.tilesXSlider.value;
+        // ... update other spans similarly ...
+        if(elements.preEffectIntensityValue && elements.preEffectIntensitySlider) elements.preEffectIntensityValue.textContent = elements.preEffectIntensitySlider.value;
+        // ... etc.
+    }
 }
 
 
@@ -300,7 +347,7 @@ export function panMove(event, elements, state, updateSourcePreviewTransformFunc
     state.currentOffsetY = state.startOffsetY + dy;
     const { clampedX, clampedY } = updateSourcePreviewTransformFunc();
     state.currentOffsetX = clampedX; state.currentOffsetY = clampedY;
-    handleSliderChangeFunc(); // Trigger processing update
+    if (typeof handleSliderChangeFunc === 'function') handleSliderChangeFunc(); // Trigger processing update
 }
 
 /** Ends the panning operation */
@@ -314,27 +361,29 @@ export function endPan(elements, state) {
 /** Handles zoom slider input */
 export function handleSourceZoom(elements, state, updateSourcePreviewTransformFunc, handleSliderChangeFunc) {
    // ... (keep existing handleSourceZoom function) ...
-    if (!state.currentImage) return;
+    if (!state.currentImage || !elements.sourceZoomSlider) return;
     state.sourceZoomLevel = parseFloat(elements.sourceZoomSlider.value);
     if (elements.sourceZoomValueSpan) elements.sourceZoomValueSpan.textContent = state.sourceZoomLevel.toFixed(1);
     const { clampedX, clampedY } = updateSourcePreviewTransformFunc();
     state.currentOffsetX = clampedX; state.currentOffsetY = clampedY;
-    handleSliderChangeFunc(); // Trigger processing update
+    if (typeof handleSliderChangeFunc === 'function') handleSliderChangeFunc(); // Trigger processing update
 }
 
-// --- ADD THIS FUNCTION ---
 /**
 * Sets up an event listener for a slider to update its display value and optionally trigger a callback.
-* @param {HTMLInputElement} slider - The slider input element.
-* @param {HTMLElement} valueDisplay - The element to display the slider's value.
+* @param {HTMLInputElement | null} slider - The slider input element.
+* @param {HTMLElement | null} valueDisplay - The element to display the slider's value.
 * @param {Function} [callback] - Optional function to call when the slider value changes.
 * @param {Function} [formatter=val => val] - Optional function to format the displayed value.
 */
 export function setupSliderListener(slider, valueDisplay, callback, formatter = val => val) {
-    if (!slider || !valueDisplay) return; // Basic check
+    if (!slider || !valueDisplay) {
+        // console.warn("setupSliderListener: Slider or ValueDisplay element not found.");
+        return; // Basic check
+    }
     const update = () => {
-        valueDisplay.textContent = formatter(slider.value);
-        if (callback) {
+        if (valueDisplay) valueDisplay.textContent = formatter(slider.value); // Check again inside closure
+        if (typeof callback === 'function') {
             callback();
         }
     };
