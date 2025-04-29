@@ -379,7 +379,19 @@ function setupEventListeners() {
 
     // Panning listeners
      elements.sourcePreviewContainer?.addEventListener('mousedown', (e) => startPan(e, elements, state));
-     document.addEventListener('mousemove', (e) => panMove( /* ... */ ));
+       document.addEventListener('mousemove', (e) => {
+    // --- ADD THIS CHECK ---
+    if (!state) {
+         console.error("mousemove listener triggered, but state is undefined!");
+         return; // Stop execution if state is missing
+    }
+    // If state exists, proceed to call panMove
+    panMove(
+         e, elements, state,
+         () => updateSourcePreviewTransform(elements, state),
+         handleSliderChange
+    );
+ });
      document.addEventListener('mouseup', () => endPan(elements, state));
      elements.sourcePreviewContainer?.addEventListener('mouseleave', () => endPan(elements, state));
 }
