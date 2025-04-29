@@ -328,15 +328,32 @@ export function resetState(elements, state, updateTilingControlsVisibilityFunc, 
 // --- Panning Logic ---
 /** Starts the panning operation */
 export function startPan(event, elements, state) {
-   // ... (keep existing startPan function) ...
-    if (!state.currentImage || event.button !== 0) return;
-    if (event.target === elements.sourcePreview) { event.preventDefault(); }
-    state.isDragging = true;
-    state.dragStartX = event.pageX; state.dragStartY = event.pageY;
-    state.startOffsetX = state.currentOffsetX; state.startOffsetY = state.currentOffsetY;
-    if(elements.sourcePreviewContainer) elements.sourcePreviewContainer.style.cursor = 'grabbing';
-}
+    console.log("startPan: Function entered."); // Log F
 
+    if (!state.currentImage) {
+        console.log("startPan: Returning because state.currentImage is null/falsy."); // Log G
+        return;
+    }
+    if (event.button !== 0) {
+        console.log(`startPan: Returning because event.button is ${event.button} (expected 0 for left button).`); // Log H
+        return;
+    }
+
+    // Prevent default image dragging behavior ONLY if clicking on the preview image itself
+    if (event.target === elements.sourcePreview) {
+         console.log("startPan: Preventing default drag on sourcePreview image."); // Log I
+         event.preventDefault();
+    }
+
+    console.log("startPan: Setting isDragging = true"); // Log J
+    state.isDragging = true;
+    state.dragStartX = event.pageX;
+    state.dragStartY = event.pageY;
+    state.startOffsetX = state.currentOffsetX;
+    state.startOffsetY = state.currentOffsetY;
+    if(elements.sourcePreviewContainer) elements.sourcePreviewContainer.style.cursor = 'grabbing';
+    console.log("startPan: Drag state initialized."); // Log K
+}
 /** Handles mouse movement during panning */
 export function panMove(event, elements, state, updateSourcePreviewTransformFunc, handleSliderChangeFunc) {
     // --- ADD LOGS ---
