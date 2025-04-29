@@ -339,8 +339,20 @@ export function startPan(event, elements, state) {
 
 /** Handles mouse movement during panning */
 export function panMove(event, elements, state, updateSourcePreviewTransformFunc, handleSliderChangeFunc) {
-   // ... (keep existing panMove function) ...
-    if (!state.isDragging) return;
+    // --- ADD LOGS ---
+    console.log("panMove: Function entered."); // Log A
+    console.log("panMove: Received state:", state); // Log B - See what 'state' looks like here!
+
+    // This is likely the line causing the error (around 343)
+    if (!state.isDragging) {
+         console.log("panMove: Not dragging, returning."); // Log C
+         return;
+    }
+
+    // If it gets past the check, log that too
+    console.log("panMove: Currently dragging."); // Log D
+
+    // --- REST OF THE FUNCTION ---
     const dx = event.pageX - state.dragStartX;
     const dy = event.pageY - state.dragStartY;
     state.currentOffsetX = state.startOffsetX + dx;
