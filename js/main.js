@@ -378,7 +378,10 @@ function setupEventListeners() {
     elements.keepAspectRatioCheckbox?.addEventListener('change', () => { /* ... */ });
 
     // Panning listeners
-     elements.sourcePreviewContainer?.addEventListener('mousedown', (e) => startPan(e, elements, state));
+          elements.sourcePreviewContainer?.addEventListener('mousedown', (e) => {
+        console.log("mousedown listener fired on sourcePreviewContainer."); // Log E
+        startPan(e, elements, state);
+     });
      document.addEventListener('mousemove', (e) => {
         // --- NEW: Simple log to check if listener callback runs ---
         console.log("mousemove event listener fired!");
