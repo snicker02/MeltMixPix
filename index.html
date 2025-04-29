@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor - Fractal Effects</title>
+    <script src="https://cdn.tailwindcss.com"></script> <link rel="stylesheet" href="css/styles.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-4xl text-center">
+        <h1 class="text-2xl md:text-3xl font-bold mb-6 text-gray-800">Image Editor - Fractal Effects</h1>
+
+        <div class="mb-4">
+            <label for="imageLoader" class="inline-block text-white font-medium py-2 px-4 rounded-lg shadow">Load Image</label>
+            <input type="file" id="imageLoader" name="imageLoader" accept="image/*" class="hidden"/>
+            <p id="fileName" class="text-sm text-gray-500 mt-2">No image selected</p>
+        </div>
+
+        <div id="canvasContainer" class="mb-4 min-h-[200px]">
+            <canvas id="imageCanvas" class="hidden"></canvas>
+            <p id="canvasPlaceholder" class="text-gray-400">Image will appear here</p>
+        </div>
+
+        <div id="zoomControls" class="control-row mb-4 hidden">
+            <label>Zoom:</label>
+            <button id="zoomOutButton" class="zoom-button" title="Zoom Out" disabled>-</button>
+            <button id="zoomResetButton" class="zoom-button" title="Reset Zoom" disabled>100%</button>
+            <button id="zoomInButton" class="zoom-button" title="Zoom In" disabled>+</button>
+        </div>
+
+        <div id="controls" class="controls-container hidden">
+            <div class="control-row">
+                <label for="effectSelector">Effect:</label>
+                <select id="effectSelector" class="shadow-sm">
+                    <option value="noise">Noise</option>
+                    <option value="scanLines">Scan Lines</option>
+                    <option value="waveDistortion">Wave Distortion</option>
+                    <option value="fractalZoom">Fractal Zoom</option>
+                </select>
+                <button id="undoButton" title="Undo Last Apply" disabled>Undo</button>
+                <button id="redoButton" title="Redo Last Undo" disabled>Redo</button>
+            </div>
+
+            <div id="effectOptionsContainer" class="effect-options">
+                <div id="intensityControl" class="effect-option-group">
+                     <div>
+                         <label for="intensitySlider">Intensity/Depth:</label>
+                         <input type="range" id="intensitySlider" min="1" max="100" value="50">
+                         <span id="intensityValue">50</span>
+                     </div>
+                </div>
+
+                <div id="waveDistortionOptions" class="effect-option-group hidden">
+                     <div class="effect-option-label">Wave Distortion Options</div>
+                     <div>
+                         <label for="waveAmplitudeSlider">Amplitude:</label>
+                         <input type="range" id="waveAmplitudeSlider" min="0" max="50" value="10"> <span id="waveAmplitudeValue">10</span>
+                     </div>
+                      <div>
+                         <label for="waveFrequencySlider">Frequency:</label>
+                         <input type="range" id="waveFrequencySlider" min="1" max="50" value="5"> <span id="waveFrequencyValue">5</span>
+                     </div>
+                     <div> <label for="wavePhaseSlider">Phase Shift:</label>
+                         <input type="range" id="wavePhaseSlider" min="0" max="360" value="0"> <span id="wavePhaseValue">0&deg;</span>
+                     </div>
+                     <div>
+                         <label for="waveDirection">Direction:</label>
+                         <select id="waveDirection">
+                             <option value="horizontal" selected>Horizontal</option>
+                             <option value="vertical">Vertical</option>
+                             <option value="both">Both</option> </select>
+                     </div>
+                     <div>
+                         <label for="waveType">Type:</label>
+                         <select id="waveType">
+                             <option value="sine" selected>Sine</option>
+                             <option value="cosine">Cosine</option>
+                         </select>
+                     </div>
+                </div>
+            </div>
+            <p id="realtimeWarning" class="hidden">Real-time preview disabled for this effect.</p>
+
+            <div class="control-row">
+                <label for="saveWidth">Save Width:</label>
+                <input type="number" id="saveWidth" min="1" placeholder="Width" disabled>
+                <label for="saveHeight">Height:</label>
+                <input type="number" id="saveHeight" min="1" placeholder="Height" disabled>
+                <input type="checkbox" id="keepAspectRatio" disabled>
+                <label for="keepAspectRatio">Keep Aspect Ratio</label>
+            </div>
+
+            <div class="control-row">
+                <button id="applyEffectButton" class="text-white font-medium py-2 px-4 shadow" title="Apply effect permanently (allows stacking)" disabled>
+                    Apply Effect
+                </button>
+                <button id="resetButton" class="text-white font-medium py-2 px-4 shadow" title="Reset image to its original state" disabled>
+                    Reset Image
+                </button>
+                <button id="saveButton" class="text-white font-medium py-2 px-4 shadow" title="Save the current image" disabled>
+                    Save Image
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+
+</body>
+</html>
