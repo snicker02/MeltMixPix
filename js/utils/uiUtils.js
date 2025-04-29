@@ -225,13 +225,13 @@ export function resetState(elements, state, updateTilingControlsVisibilityFunc, 
     if (keepAspectRatioCheckbox) { keepAspectRatioCheckbox.disabled = true; keepAspectRatioCheckbox.checked = true; }
 
     // Reset Tiling Slider Values & Display
-    if (elements.tilesXSlider) elements.tilesXSlider.value = 3;
-    if (elements.tilesYSlider) elements.tilesYSlider.value = 3;
+    if (elements.tilesXSlider) elements.tilesXSlider.value = 1;
+    if (elements.tilesYSlider) elements.tilesYSlider.value = 1;
     if (elements.skewSlider) elements.skewSlider.value = 0.5;
     if (elements.staggerSlider) elements.staggerSlider.value = 0.5;
     if (elements.scaleSlider) elements.scaleSlider.value = 1.0;
-    if (elements.preTileXSlider) elements.preTileXSlider.value = 3;
-    if (elements.preTileYSlider) elements.preTileYSlider.value = 3;
+    if (elements.preTileXSlider) elements.preTileXSlider.value = 1;
+    if (elements.preTileYSlider) elements.preTileYSlider.value = 1;
     if (elements.sourceZoomSlider) elements.sourceZoomSlider.value = 1.0;
     if (sourceZoomValueSpan) sourceZoomValueSpan.textContent = '1.0';
 
