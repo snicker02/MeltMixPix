@@ -1,5 +1,4 @@
-title: js/utils/uiUtils.js
-content: // js/utils/uiUtils.js (Single Effect UI - Includes New Effect Controls)
+// js/utils/uiUtils.js (Single Effect UI - Includes New Effect Controls)
 
 // Effects that might be slow for real-time preview before tiling
 const drawingPreEffects = ['fractalZoom', 'pixelSort', 'sierpinski'];
