@@ -1,5 +1,4 @@
-title: js/main.js
-content: // js/main.js (Single Pre-Effect Logic with New Effects)
+// js/main.js (Single Pre-Effect Logic with New Effects)
 
 // --- Utility Imports ---
 import {
