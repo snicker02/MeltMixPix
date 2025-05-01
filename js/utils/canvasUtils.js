@@ -1,3 +1,4 @@
+
 /**
  * Gets the canvas element and its 2D rendering context.
  * @param {string} canvasId - The ID of the canvas element.
