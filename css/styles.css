@@ -1,3 +1,4 @@
+
 /* Custom styles */
 body { font-family: 'Inter', sans-serif; }
 #imageCanvas, #preTileCanvas, #mirrorCanvas { display: none; } /* Keep canvases hidden */
