@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,23 +43,28 @@
         </div>
 
         <div id="preEffectControls" class="mb-6 border-t pt-6">
-            <label class="block text-sm font-medium text-gray-600 mb-3">2. Apply Pre-Effect (Optional):</label>
-
-            <div class="control-row mb-4 pb-3 border-b border-gray-200"> <label for="preEffectSelector">Effect:</label>
-                <select id="preEffectSelector" class="shadow-sm">
-                    <option value="none" selected>None</option> <option value="noise">Noise</option>
-                    <option value="scanLines">Scan Lines</option>
-                    <option value="sliceShift">Slice Shift</option>
-                    <option value="pixelSort">Pixel Sort</option>
-                    <option value="channelShift">Channel Shift</option>
-                    <option value="blockDisplace">Block Displacement</option>
-                    <option value="invertBlocks">Invert Blocks/Circles</option>
-                    <option value="sierpinski">Sierpinski Carpet</option>
-                    <option value="waveDistortion">Wave Distortion</option>
-                    <option value="fractalZoom">Fractal Zoom</option>
-                </select>
-                </div>
-
+            <label class="block text-sm font-medium text-gray-600 mb-3">2. Apply Pre-Effect(s) Sequentially:</label>
+            <div class="control-row mb-4 pb-3 border-b border-gray-200">
+                 <label for="preEffectSelector">Effect:</label>
+                 <select id="preEffectSelector" class="shadow-sm">
+                     <option value="none" selected>None</option>
+                     <option value="noise">Noise</option>
+                     <option value="scanLines">Scan Lines</option>
+                     <option value="sliceShift">Slice Shift</option>
+                     <option value="pixelSort">Pixel Sort</option>
+                     <option value="channelShift">Channel Shift</option>
+                     <option value="blockDisplace">Block Displacement</option>
+                     <option value="invertBlocks">Invert Blocks/Circles</option>
+                     <option value="sierpinski">Sierpinski Carpet</option>
+                     <option value="waveDistortion">Wave Distortion</option>
+                     <option value="fractalZoom">Fractal Zoom</option>
+                 </select>
+                 <button id="applyEffectButton" class="bg-purple-500 hover:bg-purple-700 text-white font-semibold py-1 px-3 rounded text-xs disabled:opacity-50" disabled title="Apply selected effect permanently to the source image">
+                     Apply Pre-Effect
+                 </button>
+                 <button id="undoButton" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded text-xs disabled:opacity-50" title="Undo Last Apply" disabled>Undo</button>
+                  <button id="redoButton" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded text-xs disabled:opacity-50" title="Redo Last Undo" disabled>Redo</button>
+             </div>
             <div id="preEffectOptionsContainer" class="effect-options">
                 <div id="preEffectIntensityControl" class="effect-option-group hidden">
                      <div>
@@ -115,9 +121,9 @@
                      <div><label for="preEffectWaveDirection">Direction:</label><select id="preEffectWaveDirection"><option value="horizontal" selected>Horizontal</option><option value="vertical">Vertical</option><option value="both">Both</option></select></div>
                      <div><label for="preEffectWaveType">Type:</label><select id="preEffectWaveType"><option value="sine" selected>Sine</option><option value="cosine">Cosine</option></select></div>
                 </div>
-                </div>
-             <p id="preEffectRealtimeWarning" class="text-xs text-gray-500 text-center mt-1 hidden">Effect preview applied before tiling. Some effects may be slow.</p>
             </div>
+             <p id="preEffectRealtimeWarning" class="text-xs text-gray-500 text-center mt-1 hidden">Effect preview applied before tiling. Some effects may be slow.</p>
+        </div>
 
 
         <div class="mb-6 border-t pt-6">
@@ -171,9 +177,12 @@
              </div>
         </div>
 
-        <canvas id="sourceEffectCanvas" style="display:none;"></canvas> <canvas id="mirrorCanvas" style="display:none;"></canvas>
+        <canvas id="sourceEffectCanvas" style="display:none;"></canvas>
+        <canvas id="mirrorCanvas" style="display:none;"></canvas>
         <canvas id="preTileCanvas" style="display:none;"></canvas>
-        <canvas id="imageCanvas" style="display:none;"></canvas> <div class="text-center mt-8 border-t pt-6">
+        <canvas id="imageCanvas" style="display:none;"></canvas>
+
+        <div class="text-center mt-8 border-t pt-6">
              <label class="block text-sm font-medium text-gray-600 mb-2">5. Save Final Image:</label>
              <button id="saveButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-lg" disabled>
                  Save Image
