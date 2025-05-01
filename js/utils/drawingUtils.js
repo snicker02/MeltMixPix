@@ -1,3 +1,4 @@
+
 // js/utils/drawingUtils.js
 
 // Constants for geometry calculations
