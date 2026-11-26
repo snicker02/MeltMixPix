@@ -638,6 +638,23 @@ function setupEventListeners() {
 
 
     elements.saveButton?.addEventListener('click', saveImage);
+
+    // shared image shelf (snicker02.github.io/shared/bridge.js)
+    const shelfBtn = document.getElementById('shelfBtn');
+    if (window.SnickerShelf && shelfBtn) {
+        window.SnickerShelf.mount({
+            app: 'MeltMixPix',
+            button: shelfBtn,
+            onImage: (file) => handleImageLoad({ target: { files: [file] } }),
+            getImage: () => {
+                if (!elements.saveButton || elements.saveButton.disabled) throw new Error('load an image first');
+                return new Promise((res, rej) => elements.canvas.toBlob((b) => (b ? res(b) : rej(new Error('encode failed'))), 'image/png'));
+            },
+            getMeta: () => ({ name: stateManager.getOriginalFileName().replace(/\.[^/.]+$/, '') + '_MeltMixPix.png' }),
+        });
+    } else if (shelfBtn) {
+        shelfBtn.hidden = true;
+    }
     elements.applyEffectButton?.addEventListener('click', handleApplyEffectClick);
     elements.undoButton?.addEventListener('click', handleUndoClick);
     elements.redoButton?.addEventListener('click', handleRedoClick);
